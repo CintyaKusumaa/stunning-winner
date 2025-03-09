@@ -9,7 +9,7 @@ from babel.numbers import format_currency  # Add this import for currency format
 # Load dataset
 @st.cache_data
 def load_data():
-    return pd.read_csv("D:/DEPOSITORYs/Semester 6/DBS Camp/submission/dashboard/main_data.csv", parse_dates=[
+    return pd.read_csv("main_data.csv", parse_dates=[
         "order_purchase_timestamp",
         "order_approved_at",
         "order_delivered_carrier_date",
