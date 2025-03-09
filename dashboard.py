@@ -101,27 +101,45 @@ with col3:
     st.metric(label="👥 Jumlah Pelanggan", value=f"{demand_stats['Customer Count'].sum()}")
 
 # Subheader untuk Peta
-st.markdown("### Clustering Daerah berdasarkan Demand")
+st.markdown("#### Clustering Daerah berdasarkan Demand")
 
-m = folium.Map(location=[-14.2350, -51.9253], zoom_start=4, tiles="CartoDB positron")
-# Warna berdasarkan kategori demand
-demand_colors = {
-    "Low Demand": "lightcoral",
-    "Medium Demand": "skyblue",
-    "High Demand": "mediumseagreen"
-}
+# Inisialisasi session state untuk tombol jika belum ada
+if "visualize_clicked" not in st.session_state:
+    st.session_state.visualize_clicked = False
 
-# Iterasi setiap baris dalam DataFrame
-for _, row in filtered_df.iterrows():
-    folium.CircleMarker(
-        location=[row['customer_lat'], row['customer_lng']],
-        radius=2,  # Ukuran marker lebih besar untuk visibilitas
-        color=demand_colors.get(row['demand_category'], "gray"),  # Default gray jika tidak ada kategori
-        fill=True,
-        fill_opacity=0.5,
-        popup=f"State: {row['customer_state']}<br>Demand: {row['demand_category']}<br>Total Orders: {row['item_count']}"
-    ).add_to(m)
-folium_static(m)
+# Tombol untuk menampilkan peta
+if st.button("Visualize"):
+    st.session_state.visualize_clicked = True  # Simpan status tombol
+
+# Jika tombol sudah ditekan, baru tampilkan peta
+if st.session_state.visualize_clicked:
+    st.warning(
+        "⚠️ **Peringatan:** Proses visualisasi ini memerlukan komputasi yang cukup besar. "
+        "Jika Anda mengalami keterbatasan dalam penggunaan Streamlit, harap bersabar atau coba dengan data yang lebih kecil."
+    )
+
+    with st.spinner("Generating map..."):
+        m = folium.Map(location=[-14.2350, -51.9253], zoom_start=4, tiles="CartoDB positron")
+        
+        # Warna berdasarkan kategori demand
+        demand_colors = {
+            "Low Demand": "lightcoral",
+            "Medium Demand": "skyblue",
+            "High Demand": "mediumseagreen"
+        }
+
+        # Iterasi setiap baris dalam DataFrame
+        for _, row in filtered_df.iterrows():
+            folium.CircleMarker(
+                location=[row['customer_lat'], row['customer_lng']],
+                radius=2,  # Ukuran marker lebih besar untuk visibilitas
+                color=demand_colors.get(row['demand_category'], "gray"),  # Default gray jika tidak ada kategori
+                fill=True,
+                fill_opacity=0.5,
+                popup=f"State: {row['customer_state']}<br>Demand: {row['demand_category']}<br>Total Orders: {row['item_count']}"
+            ).add_to(m)
+
+        folium_static(m)
 
 # RFM Analysis
 st.subheader("Analisis RFM Pelanggan")
